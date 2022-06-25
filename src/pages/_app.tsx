@@ -1,6 +1,7 @@
 import { withTRPC } from "@trpc/next";
 import { AppType } from "next/dist/shared/lib/utils";
 import { AppRouter } from "../backend/router";
+import "../styles/globals.css";
 
 import superjson from "superjson";
 
