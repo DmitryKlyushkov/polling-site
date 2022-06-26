@@ -11,12 +11,13 @@ export const questionRouter = createRouter()
   .query("get-by-id", {
     input: z.object({ id: z.string() }),
     async resolve({ input, ctx }) {
-      console.log("Do we have a token here?", ctx.token);
-      return await prisma.pollQuestion.findFirst({
+      const question = await prisma.pollQuestion.findFirst({
         where: {
           id: input.id,
         },
       });
+
+      return { question, isOwner: question?.ownerToken === ctx.token };
     },
   })
   .mutation("create", {
@@ -24,11 +25,14 @@ export const questionRouter = createRouter()
       question: z.string().min(5).max(600),
     }),
 
-    async resolve({ input }) {
-      const newQuestion = await prisma.pollQuestion.create({
+    async resolve({ input, ctx }) {
+      if (!ctx.token) return { error: "Unauthorized" };
+
+      return await prisma.pollQuestion.create({
         data: {
           question: input.question,
           options: [],
+          ownerToken: ctx.token,
         },
       });
     },
