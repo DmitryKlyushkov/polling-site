@@ -1,9 +1,8 @@
-import * as trpc from "@trpc/server";
 import { z } from "zod";
 import { prisma } from "../../db/client";
+import { createRouter } from "./context";
 
-export const questionRouter = trpc
-  .router()
+export const questionRouter = createRouter()
   .query("get-all", {
     async resolve() {
       return await prisma.pollQuestion.findMany();
@@ -11,7 +10,8 @@ export const questionRouter = trpc
   })
   .query("get-by-id", {
     input: z.object({ id: z.string() }),
-    async resolve({ input }) {
+    async resolve({ input, ctx }) {
+      console.log("Do we have a token here?", ctx.token);
       return await prisma.pollQuestion.findFirst({
         where: {
           id: input.id,
