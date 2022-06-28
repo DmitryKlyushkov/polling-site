@@ -1,7 +1,4 @@
-import type { NextPage } from "next";
-import Link from "next/link";
 import { useRef } from "react";
-
 import { trpc } from "../utils/trpc";
 
 const QuestionCreator: React.FC = () => {
