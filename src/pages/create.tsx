@@ -1,27 +1,32 @@
 import React, { useRef } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/router";
 
 import { trpc } from "../utils/trpc";
-
-type Inputs = {
-  example: string;
-  exampleRequired: string;
-};
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  CreateInputQuestionType,
+  createQuestionValidator,
+} from "../shared/create-question-validator";
 
 const CreateQuestionForm = () => {
-  const { mutate, isLoading } = trpc.useMutation("questions.create", {
-    onSuccess: (data) => {},
-  });
+  const router = useRouter();
 
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
-  } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
+  } = useForm<CreateInputQuestionType>({
+    resolver: zodResolver(createQuestionValidator),
+  });
 
-  console.log(watch("example")); // watch input value by passing the name of it
+  const { mutate, isLoading, data } = trpc.useMutation("questions.create", {
+    onSuccess: (data) => {
+      router.push(`/question/${data.id}`);
+    },
+  });
+
+  if (isLoading || data) return <div>Loading...</div>;
 
   return (
     <div className="antialiased text-gray-100 px-6">
@@ -30,17 +35,25 @@ const CreateQuestionForm = () => {
         <p className="mt-2 text-lg text-gray-100">
           These are form elements this plugin styles by default.
         </p>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form
+          onSubmit={handleSubmit((data) => {
+            mutate(data);
+          })}
+        >
           <div className="mt-8 grid grid-cols-1 md:grid-cols-1 gap-6 items-start">
             <div className="grid grid-cols-1 gap-6">
               <label className="block">
                 <span className="text-gray-200">Question</span>
                 <input
+                  {...register("question")}
                   type="text"
                   className="form-input mt-1 block w-full text-gray-800"
                   placeholder="How do magnets work?"
                 />
               </label>
+              {errors.question && (
+                <p className="text-red-400">{errors.question.message}</p>
+              )}
             </div>
             <div className="grid grid-cols-1 gap-6">
               <label className="block">
@@ -63,18 +76,6 @@ const QuestionCreator: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   return <CreateQuestionForm />;
-
-  return (
-    <input
-      ref={inputRef}
-      disabled={isLoading}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") {
-          mutate({ question: e.currentTarget.value });
-        }
-      }}
-    />
-  );
 };
 
 export default QuestionCreator;
