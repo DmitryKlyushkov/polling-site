@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { useRouter } from "next/router";
 
 import { trpc } from "../utils/trpc";
@@ -16,9 +16,19 @@ const CreateQuestionForm = () => {
     register,
     handleSubmit,
     formState: { errors },
+    control,
   } = useForm<CreateInputQuestionType>({
     resolver: zodResolver(createQuestionValidator),
+    defaultValues: {
+      options: [{ text: "Yes" }, { text: "No" }],
+    },
   });
+
+  const { fields, append, prepend, remove, swap, move, insert } =
+    useFieldArray<CreateInputQuestionType>({
+      control, // control props comes from useForm (optional: if you are using FormContext)
+      name: "options", // unique name for your Field Array
+    });
 
   const { mutate, isLoading, data } = trpc.useMutation("questions.create", {
     onSuccess: (data) => {
@@ -55,7 +65,33 @@ const CreateQuestionForm = () => {
                 <p className="text-red-400">{errors.question.message}</p>
               )}
             </div>
-            <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-2 gap-6">
+              {fields.map((field, index) => {
+                return (
+                  <div key={field.id}>
+                    <section className={"section"} key={field.id}>
+                      <input
+                        type="text"
+                        {...register(`options.${index}.text` as const, {
+                          required: true,
+                        })}
+                        className="w-full text-gray-400"
+                      />
+                      <button type="button" onClick={() => remove(index)}>
+                        DELETE
+                      </button>
+                    </section>
+                  </div>
+                );
+              })}
+            </div>
+            <button
+              type="button"
+              onClick={() => append({ text: "another option" })}
+            >
+              Add options
+            </button>
+            <div>
               <label className="block">
                 <input
                   type="submit"

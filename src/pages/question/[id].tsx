@@ -1,3 +1,4 @@
+import { AnySoaRecord } from "dns";
 import { useRouter } from "next/router";
 import { trpc } from "../../utils/trpc";
 
@@ -22,7 +23,7 @@ const QuestionPageContent: React.FC<{ id: string }> = ({ id }) => {
       <div className="text-2xl font-bold">{data?.question?.question}</div>
       <div>
         {(data?.question?.options as string[])?.map((option) => (
-          <div key={option}>{option}</div>
+          <div key={option}>{(option as any).text}</div>
         ))}
       </div>
     </div>
