@@ -1,15 +1,21 @@
-import { AnySoaRecord } from "dns";
 import { useRouter } from "next/router";
 import { trpc } from "../../utils/trpc";
 
 const QuestionPageContent: React.FC<{ id: string }> = ({ id }) => {
   const { data, isLoading } = trpc.useQuery(["questions.get-by-id", { id }]);
 
+  const { mutate, data: voteResponse } = trpc.useMutation(
+    "questions.vote-on-question",
+    {
+      onSuccess: () => window.location.reload(),
+    }
+  );
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  if (!isLoading && !data) {
+  if (!data || !data.question) {
     return <div>Question not found</div>;
   }
 
@@ -21,10 +27,28 @@ const QuestionPageContent: React.FC<{ id: string }> = ({ id }) => {
         </div>
       )}
       <div className="text-2xl font-bold">{data?.question?.question}</div>
-      <div>
-        {(data?.question?.options as string[])?.map((option) => (
-          <div key={option}>{(option as any).text}</div>
-        ))}
+      <div className="flex flex-col gap-4">
+        {(data?.question?.options as string[])?.map((option, index) => {
+          if (data?.isOwner || data?.vote) {
+            return (
+              <div key={index}>
+                {data?.votes?.[index]?._count} - {(option as any).text}
+              </div>
+            );
+          }
+          return (
+            <button
+              key={index}
+              type="button"
+              onClick={() => {
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                mutate({ questionId: data?.question!.id, option: index });
+              }}
+            >
+              {(option as any).text}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
