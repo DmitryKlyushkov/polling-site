@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useRouter } from "next/router";
 
@@ -105,9 +105,6 @@ const CreateQuestionForm = () => {
 };
 
 const QuestionCreator: React.FC = () => {
-  const client = trpc.useContext();
-  const inputRef = useRef<HTMLInputElement>(null);
-
   return <CreateQuestionForm />;
 };
 

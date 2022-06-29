@@ -35,7 +35,7 @@ const QuestionPageContent: React.FC<{ id: string }> = ({ id }) => {
                 key={index}
                 className={data?.vote?.Choice === index ? "underline" : ""}
               >
-                {data?.votes?.[index]?._count} - {(option as any).text}
+                {data?.votes?.[index]?._count ?? 0} - {(option as any).text}
               </div>
             );
           }
