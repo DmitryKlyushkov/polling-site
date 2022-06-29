@@ -4,6 +4,7 @@ import { trpc } from "../../utils/trpc";
 const QuestionPageContent: React.FC<{ id: string }> = ({ id }) => {
   const { data, isLoading } = trpc.useQuery(["questions.get-by-id", { id }]);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { mutate, data: voteResponse } = trpc.useMutation(
     "questions.vote-on-question",
     {

@@ -24,6 +24,7 @@ const CreateQuestionForm = () => {
     },
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { fields, append, prepend, remove, swap, move, insert } =
     useFieldArray<CreateInputQuestionType>({
       control, // control props comes from useForm (optional: if you are using FormContext)
